@@ -1,0 +1,859 @@
+﻿<Window x:Class="AutoFill.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AutoFill"
+        mc:Ignorable="d"
+        Title="Repro Services" Height="450" Width="800"
+         WindowState="Maximized">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition  />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <!--<RowDefinition Height="70"/>-->
+            <RowDefinition Height="80" />
+            <RowDefinition Height="50" />
+            <RowDefinition Height="9*"/>
+
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Orientation="Horizontal"   >
+            <Image x:Name="image1" Margin="10,10,0,10" VerticalAlignment="Top" Source="/assets/repro_logo.png" Width="60" Height="60" HorizontalAlignment="Left" />
+            <Label  x:Name="Header" Height="40" Content="Repro Services" VerticalAlignment="Top" Margin="20" FontSize="20" Foreground="#1757bf" FontWeight="Bold" />
+
+        </StackPanel>
+        <Grid  Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition  Width="400" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0"  HorizontalAlignment="Right">
+                <Label  Name="lbl_runingUnit" Padding="0 10 0 0" FontSize="20" Foreground="#ed62f0" FontWeight="ExtraBold" ></Label>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal"  HorizontalAlignment="Right" >
+                <Label  x:Name="account" Height="35" Margin="0 10 0 0" Content="User Account :" VerticalAlignment="Top"  FontSize="18" Foreground="#E65100" FontWeight="Bold" />
+                <ComboBox x:Name="accountddl"   Height="35" FontSize="17" Padding="10 5 0 0" Margin="0 0 30 0"  MinWidth="400" SelectionChanged="accountddl_SelectionChanged"/>
+                <Button x:Name="ResetOtp" Grid.Column="0"  Content="Reset OTP" Margin="0,0,20,0" Padding="10 0 10 0" Click="ResetOtp_Click" FontSize="17" FontWeight="Bold" Background="#039be5" Height="40" HorizontalAlignment="Stretch" VerticalAlignment="Center" BorderBrush="#FFC5C2C2" >
+                    <Button.Foreground>
+                        <SolidColorBrush Color="White"/>
+                    </Button.Foreground>
+                    <Button.Resources>
+                        <Style TargetType="{x:Type Border}">
+                            <Setter Property="CornerRadius" Value="3"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
+
+                <!--<Label  x:Name="bank" Height="35" Margin="0 10 0 0" Content="Bank :" VerticalAlignment="Top"  FontSize="18" Foreground="#E65100" FontWeight="Bold" />
+            <ComboBox x:Name="bankddl"   Height="35" FontSize="17" Padding="10 5 0 0" Margin="0 0 30 0"  MinWidth="400" SelectionChanged="bankddl_SelectionChanged"/>-->
+            </StackPanel>
+        </Grid>
+        <TabControl Grid.Row="2" >
+            <TabItem>
+                <TabItem.Header>
+                    <TextBlock Text="TDS Remitance" Foreground="#20bf0b"  Margin="10" FontWeight="Bold" FontSize="15" />
+                </TabItem.Header>
+
+                <Grid x:Name = "FilterGrid" Background="#FFF3F2F2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition  />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <!--<RowDefinition Height="70"/>-->
+                        <RowDefinition Height="50" />
+                        <RowDefinition Height="60"/>
+                        <RowDefinition Height="50"/>
+                        <RowDefinition Height="50"/>                       
+                        <RowDefinition/>
+                        <RowDefinition Height="50"/>
+                    </Grid.RowDefinitions>
+                    <!--<StackPanel Grid.Row="0" Grid.ColumnSpan="4" Orientation="Horizontal" >
+                        <Image x:Name="image1" Margin="10,10,0,10" VerticalAlignment="Top" Source="/assets/repro_logo.png" Width="60" Height="60" HorizontalAlignment="Left" />
+                        <Label  x:Name="Header" Height="30" Content="TDS Remitance"  Margin="10,10,10,10 " HorizontalAlignment="Left" FontSize="18" Foreground="#1757bf" FontWeight="Bold" />
+
+                    </StackPanel>-->
+
+                    <Label  x:Name="customerName" Height="30" Content="Customer Name" Grid.Row="0" Grid.Column="0" Margin="10,10,10,0 " HorizontalAlignment="Left" FontSize="14" Foreground="#FF8D8E95" FontWeight="Bold" />
+                    <Label x:Name="premises" Height="30" Content="Premises *" Grid.Row="0" Grid.Column="1" Margin="0,10,10,0 " HorizontalAlignment="Left" FontSize="14" Foreground="#FF8D8E95" FontWeight="Bold" />
+                    <Label x:Name="unitNo" Height="30" Content="Unit No *" Grid.Row="0" Grid.Column="2" Margin="0,10,10,0 " HorizontalAlignment="Left" FontSize="14" Foreground="#FF8D8E95" FontWeight="Bold" />
+                    <Label  x:Name="lotNo" Height="30" Content="Lot No *" Grid.Row="0" Grid.Column="3" Margin="0,10,10,0 " HorizontalAlignment="Left" FontSize="14" Foreground="#FF8D8E95" FontWeight="Bold" />
+
+                    <TextBox  x:Name="customerNameTxt" VerticalContentAlignment="Center" KeyDown="textboxKeydown" Height="35"  Grid.Row="1" Grid.Column="0" Margin="10,0,10,10"  BorderBrush="#FFDFE1E2">
+                        <TextBox.Resources>
+                            <Style TargetType="{x:Type Border}">
+                                <Setter Property="CornerRadius" Value="3"/>
+                            </Style>
+                        </TextBox.Resources>
+                    </TextBox>
+                    <TextBox  x:Name="PremisesTxt" VerticalContentAlignment="Center" KeyDown="textboxKeydown" Height="35"  Grid.Row="1" Grid.Column="1" Margin="0,0,10,10 "  BorderBrush="#FFDFE1E2">
+                        <TextBox.Resources>
+                            <Style TargetType="{x:Type Border}">
+                                <Setter Property="CornerRadius" Value="3"/>
+                            </Style>
+                        </TextBox.Resources>
+                    </TextBox>
+                    <Grid  Grid.Row="1" Grid.Column="2"  >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition  />
+                            <ColumnDefinition  Width="10" />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0"   x:Name="unitNoTxt" VerticalContentAlignment="Center" KeyDown="textboxKeydown" Height="35" Margin="0,0,10,10 "  BorderBrush="#FFDFE1E2" TextChanged="unitNoTxt_TextChanged">
+                            <TextBox.Resources>
+                                <Style TargetType="{x:Type Border}">
+                                    <Setter Property="CornerRadius" Value="3"/>
+                                </Style>
+                            </TextBox.Resources>
+                        </TextBox>
+                        <Label Grid.Column="1"  Background="#b8bab8" Width="3" Height="30" Margin="0 0 8 10"/>
+                        <TextBox Grid.Column="2"  x:Name="fromUnitNoTxt" VerticalContentAlignment="Center" KeyDown="textboxKeydown" Height="35"   BorderBrush="#FFDFE1E2" Margin="0,0,5,10 " TextChanged="fromUnitNoTxt_TextChanged">
+                            <TextBox.Resources>
+                                <Style TargetType="{x:Type Border}">
+                                    <Setter Property="CornerRadius" Value="3"/>
+                                </Style>
+                            </TextBox.Resources>
+                        </TextBox>
+                        <TextBox Grid.Column="3"  x:Name="toUnitNoTxt" VerticalContentAlignment="Center" KeyDown="textboxKeydown" Height="35"   BorderBrush="#FFDFE1E2" Margin="0,0,10,10 " TextChanged="fromUnitNoTxt_TextChanged">
+                            <TextBox.Resources>
+                                <Style TargetType="{x:Type Border}">
+                                    <Setter Property="CornerRadius" Value="3"/>
+                                </Style>
+                            </TextBox.Resources>
+                        </TextBox>
+                    </Grid>
+                    <TextBox  x:Name="lotNoTxt" VerticalContentAlignment="Center" KeyDown="textboxKeydown" Height="35" Grid.Row="1" Grid.Column="3" Margin="0,0,10,10 "  BorderBrush="#FFDFE1E2">
+                        <TextBox.Resources>
+                            <Style TargetType="{x:Type Border}">
+                                <Setter Property="CornerRadius" Value="3"/>
+                            </Style>
+                        </TextBox.Resources>
+                    </TextBox>
+                    <!--<ComboBox Name="remitanceStatusddl" Grid.Row="2" Grid.Column="0" Height="35" Margin="10,0,10,10" />-->
+                  
+                        <Grid  Grid.Row="2" Grid.Column="1"  Grid.ColumnSpan="2" >
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition  />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                            <Button x:Name="Search" Grid.Column="0"  Content="Search" Margin="0,0,10,0" Click="Search_Click" FontSize="17" FontWeight="Bold" Background="#039be5" Height="40" HorizontalAlignment="Stretch" VerticalAlignment="Center" BorderBrush="#FFC5C2C2" >
+                        <Button.Foreground>
+                            <SolidColorBrush Color="White"/>
+                        </Button.Foreground>
+                        <Button.Resources>
+                            <Style TargetType="{x:Type Border}">
+                                <Setter Property="CornerRadius" Value="3"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                        <Button x:Name="Reset" Content="Reset"  Grid.Column="1"  Margin="0,-2,10,0" Click="Reset_Click" FontSize="17" FontWeight="Bold" Background="White" Foreground="#FF726F6F" VerticalAlignment="Center" Height="40" BorderBrush="#FFE2E1E1">
+                        <Button.Resources>
+                            <Style TargetType="{x:Type Border}">
+                                <Setter Property="CornerRadius" Value="3"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                        <Button x:Name="BulkPayment" Content="Payment All"  Grid.Column="2"  Margin="0,-2,10,0" Click="BulkPayment_Click" FontSize="17" FontWeight="Bold" Background="#f52f7b" Foreground="White" VerticalAlignment="Center" Height="40" BorderBrush="#FFE2E1E1">
+                        <Button.Resources>
+                            <Style TargetType="{x:Type Border}">
+                                <Setter Property="CornerRadius" Value="3"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                        <Button x:Name="challan_download" Content="Challan Download"  Grid.Column="3"  Margin="0,-2,10,0" Click="challan_download_Click" FontSize="17" FontWeight="Bold" Background="#e9fa55" Foreground="#757572" VerticalAlignment="Center" Height="40" BorderBrush="#FFE2E1E1">
+                            <Button.Resources>
+                                <Style TargetType="{x:Type Border}">
+                                    <Setter Property="CornerRadius" Value="3"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                    </Grid>
+                    <ProgressBar Grid.Row="3" Grid.ColumnSpan="4"  x:Name = "progressbar1" Margin = "20,0,0,0" Height = "30"  Width="300"
+                  IsIndeterminate = "True" />
+                    <DataGrid  Grid.Row="4" RowBackground="#ccffff" AlternatingRowBackground="#fff" CanUserAddRows="False"  Foreground="#898b8c" HorizontalAlignment="Center" Margin="20,30,20,40" Width="auto" x:Name="remitanceGrid" VerticalAlignment="Top"  AutoGenerateColumns="False" Grid.ColumnSpan="4" BorderBrush="#FFDFE1E2">
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn >
+                                <DataGridTemplateColumn.Header>
+                                    <CheckBox x:Name="All" Content="All" Checked="RemittanceAll_Checked" Unchecked="RemittanceAll_Checked"/>
+                                </DataGridTemplateColumn.Header>
+                                <DataGridTemplateColumn.CellTemplate >
+                                    <DataTemplate>
+                                        <CheckBox x:Name="checkBx"  IsChecked="{Binding IsSelected,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="10 5 0 0 ">
+                                            <CheckBox.LayoutTransform>
+                                                <ScaleTransform ScaleX="1.5" ScaleY="1.5" />
+                                            </CheckBox.LayoutTransform>
+
+                                        </CheckBox>
+
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn  Header="Unit No" Binding="{Binding UnitNo}"  >
+                                <DataGridColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Height" Value="40"/>
+                                        <Setter Property="FontSize" Value="16"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Foreground" Value="#828385"/>
+                                    </Style>
+                                </DataGridColumn.HeaderStyle>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                        <Setter Property="Padding" Value="10,0,0,0" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn  Header="Lot No" Binding="{Binding LotNo}"  >
+                                <DataGridColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Height" Value="40"/>
+                                        <Setter Property="FontSize" Value="16"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Foreground" Value="#828385"/>
+                                    </Style>
+                                </DataGridColumn.HeaderStyle>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                        <Setter Property="Padding" Value="10,0,0,0" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Customer Name" Binding="{Binding CustomerName}">
+                                <DataGridColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Height" Value="40"/>
+                                        <Setter Property="FontSize" Value="16"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Foreground" Value="#828385"/>
+                                    </Style>
+                                </DataGridColumn.HeaderStyle>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                        <Setter Property="Padding" Value="10,0,0,0" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Seller Name" Binding="{Binding SellerName}">
+                                <DataGridColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Height" Value="40"/>
+                                        <Setter Property="FontSize" Value="16"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Foreground" Value="#828385"/>
+                                    </Style>
+                                </DataGridColumn.HeaderStyle>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                        <Setter Property="Padding" Value="10,0,0,0" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            
+                            <DataGridTextColumn Header="Amount" Binding="{Binding AmountShare}">
+                                <DataGridColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Height" Value="40"/>
+                                        <Setter Property="FontSize" Value="16"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Foreground" Value="#828385"/>
+                                    </Style>
+                                </DataGridColumn.HeaderStyle>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                        <Setter Property="Padding" Value="10,0,0,0" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="TDS" Binding="{Binding TdsAmount}">
+                                <DataGridColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Height" Value="40"/>
+                                        <Setter Property="FontSize" Value="16"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Foreground" Value="#828385"/>
+                                    </Style>
+                                </DataGridColumn.HeaderStyle>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                        <Setter Property="Padding" Value="10,0,0,0" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="TDS Interest" Binding="{Binding TdsInterest}">
+                                <DataGridColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Height" Value="40"/>
+                                        <Setter Property="FontSize" Value="16"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Foreground" Value="#828385"/>
+                                    </Style>
+                                </DataGridColumn.HeaderStyle>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                        <Setter Property="Padding" Value="10,0,0,0" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Late Fee" Binding="{Binding LateFee}">
+                                <DataGridColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Height" Value="40"/>
+                                        <Setter Property="FontSize" Value="16"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Foreground" Value="#828385"/>
+                                    </Style>
+                                </DataGridColumn.HeaderStyle>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                        <Setter Property="Padding" Value="10,0,0,0" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Gross Amount" Binding="{Binding GrossAmount}">
+                                <DataGridColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Height" Value="40"/>
+                                        <Setter Property="FontSize" Value="16"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Foreground" Value="#828385"/>
+                                    </Style>
+                                </DataGridColumn.HeaderStyle>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                        <Setter Property="Padding" Value="10,0,0,0" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Deduction Date" Binding="{ Binding DateOfDeduction,StringFormat=\{0:dd-MMM-yyyy\}}">
+                                <DataGridColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Height" Value="40"/>
+                                        <Setter Property="FontSize" Value="16"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Foreground" Value="#828385"/>
+                                    </Style>
+                                </DataGridColumn.HeaderStyle>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                        <Setter Property="Padding" Value="10,0,0,0" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="DA Completed" Binding="{Binding IsDebitAdvice}">
+                                <DataGridColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Height" Value="40"/>
+                                        <Setter Property="FontSize" Value="16"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Foreground" Value="#828385"/>
+                                    </Style>
+                                </DataGridColumn.HeaderStyle>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                        <Setter Property="Padding" Value="10,0,0,0" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTemplateColumn>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Margin="5,5,5,5" Padding="3,3,3,3" Click="proceedForm" Content="Proceed to Form26QB" Background="#f52f7b" Foreground="White" FontSize="14" FontWeight="Bold" IsEnabled="{Binding Show26qb,Mode=TwoWay}">
+                                            <Button.Resources>
+                                                <Style TargetType="{x:Type Border}">
+                                                    <Setter Property="CornerRadius" Value="3"/>
+                                                    <Setter Property="BorderBrush" Value="#21f702"/>
+                                                </Style>
+                                            </Button.Resources>
+                                        </Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Margin="5,5,5,5" Padding="3,3,3,3" Click="TdsPaid" Content="Set As TDS Paid" Background="#08bd2c" Foreground="White" FontSize="14" FontWeight="Bold">
+                                            <Button.Resources>
+                                                <Style TargetType="{x:Type Border}">
+                                                    <Setter Property="CornerRadius" Value="3"/>
+                                                    <Setter Property="BorderBrush" Value="#21f702"/>
+                                                </Style>
+                                            </Button.Resources>
+                                        </Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <!--<DataGridTemplateColumn>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Margin="5,5,5,5" Padding="3,3,3,3" Click="DeleteFromRemittance" Content="Delete" Background="#eb1607" Foreground="White" FontSize="14" FontWeight="Bold">
+                                            <Button.Resources>
+                                                <Style TargetType="{x:Type Border}">
+                                                    <Setter Property="CornerRadius" Value="3"/>
+                                                    <Setter Property="BorderBrush" Value="#21f702"/>
+                                                </Style>
+                                            </Button.Resources>
+                                        </Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>-->
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <Grid Grid.Row="5" VerticalAlignment="Top" Grid.ColumnSpan="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="130"/>
+                            <ColumnDefinition Width="150"/>
+                            <ColumnDefinition Width="50"/>
+                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="150"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Column="1" Content="Total Records  :" FontSize="17" FontWeight="Bold" Foreground="#FF9800"></Label>
+                        <Label x:Name="TotalRecordsLbl" Grid.Column="2" FontSize="17" FontWeight="Bold" Foreground="#E65100" Margin="20 0 0 0"></Label>
+                        <Label Grid.Column="3"></Label>
+                        <Label Grid.Column="4" Content=" Total TDS  :" FontSize="17" FontWeight="Bold" Foreground="#FF9800" ></Label>
+                        <Label x:Name="TotalTDSLbl" Grid.Column="5" FontSize="17" FontWeight="Bold" Foreground="#E65100" Margin="20 0 0 0"></Label>
+                    </Grid>
+                    <!--<Popup Name="popup1" PlacementTarget="{Binding ElementName=FilterGrid}" AllowsTransparency = "True" PopupAnimation = "Slide"
+    Placement="Center" Height="100" Width="300">
+            <Grid>
+                <ProgressBar x:Name = "pg2" Margin = "10" Height = "30"  
+                  IsIndeterminate = "True" />
+                -->
+                    <!--<ProgressBar HorizontalAlignment="Left"   
+                     Name="progressBar1" Height="25" 
+                     VerticalAlignment="Center" Width="130" 
+                     Foreground="#FF3EA3EA" 
+                     Value="{Binding ElementName=textBox1, Path=Text.Length, Mode=OneTime}"
+                     Maximum="140" ForceCursor="False" />-->
+                    <!--
+            </Grid>
+        </Popup>-->
+                </Grid>
+            </TabItem>
+            <TabItem>
+                <TabItem.Header>
+                    <TextBlock Text="      Traces" Width="120"  Foreground="#20bf0b" Margin="10" FontWeight="Bold" FontSize="15" />
+                </TabItem.Header>
+                <Grid x:Name = "TracesFilterGrid" Background="#FFF3F2F2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition  />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>                       
+                        <RowDefinition Height="50" />
+                        <RowDefinition Height="60"/>
+                        <RowDefinition Height="50"/>
+                        <RowDefinition Height="50"/>
+                        <RowDefinition Height="50"/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>                   
+
+                    <Label  x:Name="tracescustomerName" Height="30" Content="Customer Name" Grid.Row="0" Grid.Column="0" Margin="10,10,10,0 " HorizontalAlignment="Left" FontSize="14" Foreground="#FF8D8E95" FontWeight="Bold" />
+                    <Label x:Name="tracesPremises" Height="30" Content="Premises" Grid.Row="0" Grid.Column="1" Margin="0,10,10,0 " HorizontalAlignment="Left" FontSize="14" Foreground="#FF8D8E95" FontWeight="Bold" />
+                    <Label x:Name="tracesUnitNo" Height="30" Content="Unit No" Grid.Row="0" Grid.Column="2" Margin="0,10,10,0 " HorizontalAlignment="Left" FontSize="14" Foreground="#FF8D8E95" FontWeight="Bold" />
+                    <Label  x:Name="tracesLotNo" Height="30" Content="Lot No" Grid.Row="0" Grid.Column="3" Margin="0,10,10,0 " HorizontalAlignment="Left" FontSize="14" Foreground="#FF8D8E95" FontWeight="Bold" />
+
+                    <TextBox  x:Name="tracesCustomerNameTxt" VerticalContentAlignment="Center" KeyDown="textboxKeydown" Height="35"  Grid.Row="1" Grid.Column="0" Margin="10,0,10,10"  BorderBrush="#FFDFE1E2">
+                        <TextBox.Resources>
+                            <Style TargetType="{x:Type Border}">
+                                <Setter Property="CornerRadius" Value="3"/>
+                            </Style>
+                        </TextBox.Resources>
+                    </TextBox>
+                    <TextBox  x:Name="tracesPremisesTxt" VerticalContentAlignment="Center" KeyDown="textboxKeydown" Height="35"  Grid.Row="1" Grid.Column="1" Margin="0,0,10,10 "  BorderBrush="#FFDFE1E2">
+                        <TextBox.Resources>
+                            <Style TargetType="{x:Type Border}">
+                                <Setter Property="CornerRadius" Value="3"/>
+                            </Style>
+                        </TextBox.Resources>
+                    </TextBox>
+                    <!--<TextBox  x:Name="tracesUnitNoTxt" VerticalContentAlignment="Center" KeyDown="textboxKeydown" Height="35" Grid.Row="1" Grid.Column="2" Margin="0,0,10,10 "  BorderBrush="#FFDFE1E2">
+                        <TextBox.Resources>
+                            <Style TargetType="{x:Type Border}">
+                                <Setter Property="CornerRadius" Value="3"/>
+                            </Style>
+                        </TextBox.Resources>
+                    </TextBox>-->
+                    <Grid  Grid.Row="1" Grid.Column="2"  >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition  />
+                            <ColumnDefinition  Width="10" />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0"   x:Name="tracesUnitNoTxt" VerticalContentAlignment="Center" KeyDown="textboxKeydown" Height="35" Margin="0,0,10,10 "  BorderBrush="#FFDFE1E2" TextChanged="tracesUnitNoTxt_TextChanged">
+                            <TextBox.Resources>
+                                <Style TargetType="{x:Type Border}">
+                                    <Setter Property="CornerRadius" Value="3"/>
+                                </Style>
+                            </TextBox.Resources>
+                        </TextBox>
+                        <Label Grid.Column="1"  Background="#b8bab8" Width="3" Height="30" Margin="0 0 8 10"/>
+                        <TextBox Grid.Column="2"  x:Name="tracesFromUnitNoTxt" VerticalContentAlignment="Center" KeyDown="textboxKeydown" Height="35"   BorderBrush="#FFDFE1E2" Margin="0,0,5,10 " TextChanged="tracesFromUnitNoTxt_TextChanged">
+                            <TextBox.Resources>
+                                <Style TargetType="{x:Type Border}">
+                                    <Setter Property="CornerRadius" Value="3"/>
+                                </Style>
+                            </TextBox.Resources>
+                        </TextBox>
+                        <TextBox Grid.Column="3"  x:Name="tracesToUnitNoTxt" VerticalContentAlignment="Center" KeyDown="textboxKeydown" Height="35"   BorderBrush="#FFDFE1E2" Margin="0,0,10,10 " TextChanged="tracesFromUnitNoTxt_TextChanged">
+                            <TextBox.Resources>
+                                <Style TargetType="{x:Type Border}">
+                                    <Setter Property="CornerRadius" Value="3"/>
+                                </Style>
+                            </TextBox.Resources>
+                        </TextBox>
+                    </Grid>
+                    <TextBox  x:Name="tracesLotNoTxt" VerticalContentAlignment="Center" KeyDown="textboxKeydown" Height="35" Grid.Row="1" Grid.Column="3" Margin="0,0,10,10 "  BorderBrush="#FFDFE1E2">
+                        <TextBox.Resources>
+                            <Style TargetType="{x:Type Border}">
+                                <Setter Property="CornerRadius" Value="3"/>
+                            </Style>
+                        </TextBox.Resources>
+                    </TextBox>
+                    <Label  x:Name="remittanceStatusLbl" Height="30" Content="Remittance Status" Grid.Row="2" Grid.Column="0" Margin="10,10,10,0 " HorizontalAlignment="Left" FontSize="14" Foreground="#FF8D8E95" FontWeight="Bold" />
+
+                    <ComboBox Name="tracesRemitanceStatusddl" Grid.Row="3" Grid.Column="0" Height="35" Margin="10,0,10,0" />
+                    <Grid Grid.Row="3" Grid.ColumnSpan="3" Grid.Column="1" Margin="10,0,10,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition  />
+                            <ColumnDefinition  />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Button x:Name="TracesSearch"  Content="Search"  Grid.Column="0" Margin="0,0,10,0" Click="TracesSearch_Click" FontSize="17" FontWeight="Bold" Background="#039be5" Height="40" HorizontalAlignment="Stretch" VerticalAlignment="Center" BorderBrush="#FFC5C2C2" >
+                            <Button.Foreground>
+                                <SolidColorBrush Color="White"/>
+                            </Button.Foreground>
+                            <Button.Resources>
+                                <Style TargetType="{x:Type Border}">
+                                    <Setter Property="CornerRadius" Value="3"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                        <Button x:Name="TracesReset" Content="Reset"  Grid.Column="1" Margin="0,-2,10,0" Click="TracesReset_Click" FontSize="17" FontWeight="Bold" Background="White" Foreground="#FF726F6F" VerticalAlignment="Center" Height="40" BorderBrush="#FFE2E1E1">
+                            <Button.Resources>
+                                <Style TargetType="{x:Type Border}">
+                                    <Setter Property="CornerRadius" Value="3"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                        <Button x:Name="BulkRequest" Content="Request All"  Grid.Column="2" Margin="0,-2,10,0" Click="BulkRequest_Click" FontSize="17" FontWeight="Bold" Background="#f52f7b" Foreground="White" VerticalAlignment="Center" Height="40" BorderBrush="#FFE2E1E1">
+                            <Button.Resources>
+                                <Style TargetType="{x:Type Border}">
+                                    <Setter Property="CornerRadius" Value="3"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                        <Button x:Name="BulkDownload" Content="Download All"  Grid.Column="3" Margin="0,-2,10,0" Click="BulkDownload_Click" FontSize="17" FontWeight="Bold" Background="#08bd2c" Foreground="White" VerticalAlignment="Center" Height="40" BorderBrush="#FFE2E1E1">
+                            <Button.Resources>
+                                <Style TargetType="{x:Type Border}">
+                                    <Setter Property="CornerRadius" Value="3"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                    </Grid>
+                  
+                    <ProgressBar Grid.Row="4" Grid.ColumnSpan="4"  x:Name = "TracesProgressbar" Margin = "20,0,0,0" Height = "30"  Width="300"
+                  IsIndeterminate = "True" />
+                    <DataGrid  Grid.Row="5" RowBackground="#ccffff" AlternatingRowBackground="#fff" CanUserAddRows="False"  Foreground="#898b8c" HorizontalAlignment="Center" Margin="20,30,20,40" Width="auto" x:Name="TracesGrid" VerticalAlignment="Top"  AutoGenerateColumns="False" Grid.ColumnSpan="4" BorderBrush="#FFDFE1E2">
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn >
+                                <DataGridTemplateColumn.Header>
+                                    <CheckBox x:Name="SelectAll" Content="All" Checked="SelectAll_Checked" Unchecked="SelectAll_Checked"/>
+                                </DataGridTemplateColumn.Header>
+                                <DataGridTemplateColumn.CellTemplate >
+                                    <DataTemplate>
+                                        <CheckBox x:Name="checkBx"  IsChecked="{Binding IsSelected,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="10 5 0 0 " IsEnabled="{Binding OnlyTDS,Mode=TwoWay}">
+                                            <CheckBox.LayoutTransform>
+                                                <ScaleTransform ScaleX="1.5" ScaleY="1.5" />
+                                            </CheckBox.LayoutTransform>
+
+                                        </CheckBox>
+
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Customer Name" Binding="{Binding CustomerName}">
+                                <DataGridColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Height" Value="40"/>
+                                        <Setter Property="FontSize" Value="16"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Foreground" Value="#828385"/>
+                                    </Style>
+                                </DataGridColumn.HeaderStyle>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                        <Setter Property="Padding" Value="10,0,0,0" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Seller Name" Binding="{Binding SellerName}">
+                                <DataGridColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Height" Value="40"/>
+                                        <Setter Property="FontSize" Value="16"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Foreground" Value="#828385"/>
+                                    </Style>
+                                </DataGridColumn.HeaderStyle>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                        <Setter Property="Padding" Value="10,0,0,0" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Property Name" Binding="{Binding PropertyPremises}">
+                                <DataGridColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Height" Value="40"/>
+                                        <Setter Property="FontSize" Value="16"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Foreground" Value="#828385"/>
+                                    </Style>
+                                </DataGridColumn.HeaderStyle>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                        <Setter Property="Padding" Value="10,0,0,0" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn  Header="Unit No" Binding="{Binding UnitNo}"  >
+                                <DataGridColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Height" Value="40"/>
+                                        <Setter Property="FontSize" Value="16"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Foreground" Value="#828385"/>
+                                    </Style>
+                                </DataGridColumn.HeaderStyle>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                        <Setter Property="Padding" Value="10,0,0,0" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn  Header="Lot No" Binding="{Binding LotNo}"  >
+                                <DataGridColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Height" Value="40"/>
+                                        <Setter Property="FontSize" Value="16"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Foreground" Value="#828385"/>
+                                    </Style>
+                                </DataGridColumn.HeaderStyle>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                        <Setter Property="Padding" Value="10,0,0,0" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                           
+                                                  
+                            
+                           
+                            <DataGridTextColumn Header="Challan Amount" Binding="{Binding ChallanAmount}">
+                                <DataGridColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Height" Value="40"/>
+                                        <Setter Property="FontSize" Value="16"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Foreground" Value="#828385"/>
+                                    </Style>
+                                </DataGridColumn.HeaderStyle>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                        <Setter Property="Padding" Value="10,0,0,0" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Acknowledgement No" Binding="{Binding ChallanAckNo}">
+                                <DataGridColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Height" Value="40"/>
+                                        <Setter Property="FontSize" Value="16"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Foreground" Value="#828385"/>
+                                    </Style>
+                                </DataGridColumn.HeaderStyle>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                        <Setter Property="Padding" Value="10,0,0,0" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                           
+                            <DataGridTextColumn Header="Challan Date" Binding="{ Binding ChallanDate,StringFormat=\{0:dd-MMM-yyyy\}}">
+                                <DataGridColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Height" Value="40"/>
+                                        <Setter Property="FontSize" Value="16"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Foreground" Value="#828385"/>
+                                    </Style>
+                                </DataGridColumn.HeaderStyle>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                        <Setter Property="Padding" Value="10,0,0,0" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Request Date" Binding="{Binding F16BDateOfReq,StringFormat=\{0:dd-MMM-yyyy\}}">
+                                <DataGridColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Height" Value="40"/>
+                                        <Setter Property="FontSize" Value="16"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Foreground" Value="#828385"/>
+                                    </Style>
+                                </DataGridColumn.HeaderStyle>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                        <Setter Property="Padding" Value="10,0,0,0" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Request No" Binding="{Binding F16BRequestNo}">
+                                <DataGridColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Height" Value="40"/>
+                                        <Setter Property="FontSize" Value="16"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Foreground" Value="#828385"/>
+                                    </Style>
+                                </DataGridColumn.HeaderStyle>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                        <Setter Property="Padding" Value="10,0,0,0" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Header="Status" Binding="{Binding RemittanceStatus}">
+                                <DataGridColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Height" Value="40"/>
+                                        <Setter Property="FontSize" Value="16"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Foreground" Value="#828385"/>
+                                    </Style>
+                                </DataGridColumn.HeaderStyle>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                        <Setter Property="Padding" Value="10,0,0,0" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTemplateColumn>
+                                
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Margin="5,5,5,5" Padding="3,3,3,3" Click="RequestForm16B" Content="Request Form16B" Background="#f52f7b" Foreground="White" FontSize="14" FontWeight="Bold" IsEnabled="{Binding OnlyTDS,Mode=TwoWay}">
+                                            <Button.Resources>
+                                                <Style TargetType="{x:Type Border}">
+                                                    <Setter Property="CornerRadius" Value="3"/>
+                                                    <Setter Property="BorderBrush" Value="#21f702"/>
+                                                </Style>
+                                            </Button.Resources>
+                                        </Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Margin="5,5,5,5" Padding="3,3,3,3" Click="DownLoadForm" Content="Download Form" Background="#08bd2c" Foreground="White" FontSize="14" FontWeight="Bold" IsEnabled="{Binding OnlyTDS,Mode=TwoWay}">
+                                            <Button.Resources>
+                                                <Style TargetType="{x:Type Border}">
+                                                    <Setter Property="CornerRadius" Value="3"/>
+                                                    <Setter Property="BorderBrush" Value="#21f702"/>
+                                                </Style>
+                                            </Button.Resources>
+                                        </Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Margin="5,5,5,5" Padding="3,3,3,3" Click="UpdateRemittance" Content="Update" Background="#2d86fa" Foreground="White" FontSize="14" FontWeight="Bold" IsEnabled="{Binding OnlyTDS,Mode=TwoWay}">
+                                            <Button.Resources>
+                                                <Style TargetType="{x:Type Border}">
+                                                    <Setter Property="CornerRadius" Value="3"/>
+                                                    <Setter Property="BorderBrush" Value="#21f702"/>
+                                                </Style>
+                                            </Button.Resources>
+                                        </Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <!-- <DataGridTemplateColumn>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Margin="5,5,5,5" Padding="3,3,3,3" Click="DeleteFromTrace" Content="Delete" Background="#eb1607" Foreground="White" FontSize="14" FontWeight="Bold">
+                                            <Button.Resources>
+                                                <Style TargetType="{x:Type Border}">
+                                                    <Setter Property="CornerRadius" Value="3"/>
+                                                    <Setter Property="BorderBrush" Value="#21f702"/>
+                                                </Style>
+                                            </Button.Resources>
+                                        </Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>-->
+
+                            <DataGridTemplateColumn>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Margin="5,5,5,5" Padding="3,3,3,3" Click="SendMail" Content=" Mail " Background="#f2ad22" Foreground="White" FontSize="14" FontWeight="Bold" IsEnabled="{Binding OnlyTDS,Mode=TwoWay}">
+                                            <Button.Resources>
+                                                <Style TargetType="{x:Type Border}">
+                                                    <Setter Property="CornerRadius" Value="3"/>
+                                                    <Setter Property="BorderBrush" Value="#21f702"/>
+                                                </Style>
+                                            </Button.Resources>
+                                        </Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                   
+                </Grid>
+            </TabItem>
+
+        </TabControl>
+    </Grid>
+</Window>
