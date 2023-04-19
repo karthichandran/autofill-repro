@@ -95,11 +95,11 @@ namespace AutoFill
             var serialNo = GetWordAfterMatch(text, "Challan No :");
             Console.WriteLine("Challan Serial NO :" + serialNo);
 
-            var name = GetName(text, "Name :");           
+            var name = GetFullName(text);           
 
-            var tenderDate = GetWordAfterMatch(text, "Tender Date :");
+            var tenderDate = GetDate(text, "Tender Date :");
 
-            var incomeTax = GetWordAfterMatch(text, "Amount (in Rs.) : ₹");
+            var incomeTax = GetAmount(text);
            
             challanDet.Add("acknowledge", ackowledgeNo.ToString());
             challanDet.Add("serialNo", serialNo.ToString());
@@ -220,6 +220,16 @@ namespace AutoFill
             string wordAfter = words[words.Length - 1];
 
             return wordAfter;
+        }
+        private object GetFullName(string text)
+        {
+            string ward = Regex.Match(text, "Name : (.*)Assessment").Groups[1].Value;      
+            return ward;
+        }
+        private object GetAmount(string text)
+        {
+            string ward = Regex.Match(text, "₹(.*)Amount").Groups[1].Value;
+            return ward;
         }
 
         private object GetWordAfterMatch(string text, string word)
