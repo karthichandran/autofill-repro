@@ -64,14 +64,7 @@ namespace AutoFill
             accountList = svc.GetBankLoginList();
             accountddl.ItemsSource = accountList;
             accountddl.DisplayMemberPath = "UserName";
-            accountddl.SelectedValuePath = "AccountId";
-
-
-        //    List<BankList> banks = new List<BankList>() { new BankList() { BankID = 1, BankName = "ICICI" }, new BankList() { BankID = 2, BankName = "HDFC" } };
-        //    bankddl.ItemsSource = banks;
-        //    bankddl.DisplayMemberPath = "BankName";
-        //    bankddl.SelectedValuePath = "BankName";
-        //    bankddl.SelectedIndex = 0;
+            accountddl.SelectedValuePath = "AccountId";     
         }
 
         private void LoadRemitance() {
@@ -254,8 +247,8 @@ namespace AutoFill
             var downloadPath = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders", "{374DE290-123F-4565-9164-39C4925E467B}", String.Empty).ToString();
 
             //var fileName = "AHUPB2786K_23040400148910ICIC_DTAX_04042023_TaxPayer.pdf";
-            // var fileName = remittance.CustomerPAN + "_*.pdf";
-            var fileName = "23040800002375ICIC_ChallanReceipt.pdf";
+             var fileName = remittance.CustomerPAN + "_*.pdf";
+            //var fileName = "23040800002375ICIC_ChallanReceipt.pdf";
 
             var directory = new DirectoryInfo(downloadPath);
             var myFile = directory.GetFiles(fileName).OrderByDescending(f => f.LastWriteTime).ToList();
@@ -323,7 +316,7 @@ namespace AutoFill
             remittance.ChallanID = challanDet["serialNo"];
             remittance.ChallanAckNo = challanDet["acknowledge"];
             remittance.ChallanDate = DateTime.ParseExact(challanDet["tenderDate"], "dd/MM/yyyy", null);
-           // remittance.RemittanceStatusID = 2;
+            remittance.RemittanceStatusID = 2;
 
             remittance.ChallanIncomeTaxAmount = Convert.ToDecimal(challanDet["amount"]);
             remittance.ChallanInterestAmount = 0;
@@ -644,13 +637,7 @@ namespace AutoFill
         }
 
         private void Tracessearch() {
-           // var remittanceStatusID = (tracesRemitanceStatusddl.SelectedValue == null || Convert.ToInt32(tracesRemitanceStatusddl.SelectedValue) == -1) ? null : tracesRemitanceStatusddl.SelectedValue.ToString();
-            //var custName = tracesCustomerNameTxt.Text;
-            //var premise = tracesPremisesTxt.Text;
-            //var unit = tracesUnitNoTxt.Text;
-            //var lot = tracesLotNoTxt.Text;
-            //var fromUnit = tracesFromUnitNoTxt.Text;
-            //var toUnit = tracesToUnitNoTxt.Text;
+        
 
             var remittanceList = svc.GetTdsPaidList(custName, premise, unit, fromUnit, toUnit, lot, remittanceStatusID);
             remittanceList = remittanceList.OrderBy(x => x.UnitNo).ToList();
@@ -1009,21 +996,21 @@ namespace AutoFill
                 MessageBox.Show("OTP reset is failed");
         }
 
-        private void challan_download_Click(object sender, RoutedEventArgs e)
+        private async void challan_download_Click(object sender, RoutedEventArgs e)
         {
             var remittanceList = (List<TdsRemittanceDto>)remitanceGrid.ItemsSource;
             remittanceList = remittanceList.Where(x => x.IsSelected == true).ToList();
 
             if (remittanceList.Count == 0)
                 return;
+
+            progressbar1.Visibility = Visibility.Visible;
             foreach (var item in remittanceList)
             {
-
-                progressbar1.Visibility = Visibility.Visible;
-                Task.Factory.StartNew(() =>
+                await Task.Run(() =>
                 {
-                // download chellan
-                var challanAmount = item.TdsAmount + item.TdsInterest + item.LateFee;
+                    // download chellan
+                    var challanAmount = item.TdsAmount + item.TdsInterest + item.LateFee;
 
                     var id = remittanceList[0].ClientPaymentTransactionID;
                     AutoFillDto autoFillDto = svc.GetAutoFillData(id);
@@ -1032,33 +1019,35 @@ namespace AutoFill
                     if (!status)
                         return;
 
-                // auto challan upload
-                UploadChallan(item.ClientPaymentTransactionID, challanAmount);
+                    // auto challan upload
+                    UploadChallan(item.ClientPaymentTransactionID, challanAmount);
 
-                // Reload filter
-                this.Dispatcher.Invoke((Action)(() =>
-                    {
-                        var custName = customerNameTxt.Text;
-                        var premise = PremisesTxt.Text;
-                        var unit = unitNoTxt.Text;
-                        var lot = lotNoTxt.Text;
-                        var fromUnit = fromUnitNoTxt.Text;
-                        var toUnit = toUnitNoTxt.Text;
-                        var remitanceList = svc.GetTdsRemitance(custName, premise, unit, fromUnit, toUnit, lot);
-                        remitanceList = remitanceList.OrderBy(x => x.UnitNo).ToList();
-                        remitanceGrid.ItemsSource = remitanceList;
-                        TotalRecordsLbl.Content = remitanceList.Count;
-                        var totalTds = remitanceList.Sum(x => x.TdsAmount);
-                        TotalTDSLbl.Content = totalTds;
+                    // Reload filter
 
-                    }));
-
-
-                }).ContinueWith(t =>
-                {
-                    progressbar1.Visibility = Visibility.Hidden;
-                }, TaskScheduler.FromCurrentSynchronizationContext());
+                });
             }
+
+            this.Dispatcher.Invoke((Action)(() =>
+            {
+                var custName = customerNameTxt.Text;
+                var premise = PremisesTxt.Text;
+                var unit = unitNoTxt.Text;
+                var lot = lotNoTxt.Text;
+                var fromUnit = fromUnitNoTxt.Text;
+                var toUnit = toUnitNoTxt.Text;
+                var remitanceList = svc.GetTdsRemitance(custName, premise, unit, fromUnit, toUnit, lot);
+                remitanceList = remitanceList.OrderBy(x => x.UnitNo).ToList();
+                remitanceGrid.ItemsSource = remitanceList;
+                TotalRecordsLbl.Content = remitanceList.Count;
+                var totalTds = remitanceList.Sum(x => x.TdsAmount);
+                TotalTDSLbl.Content = totalTds;
+
+            }));
+
+            progressbar1.Visibility = Visibility.Hidden;
+            if (remittanceList.Count > 0)
+                MessageBox.Show(" Challan Download is processed");
+
         }
     }
 }

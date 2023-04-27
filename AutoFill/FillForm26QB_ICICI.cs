@@ -31,7 +31,7 @@ namespace AutoFill
                 LoginToIncomeTaxPortal(driver, autoFillDto.eportal);
                 ProcessEportal(driver , autoFillDto.eportal);              
                 ProcessToBank(driver, tds, interest, lateFee, transID);
-              
+                LogOut(driver);
                 driver.Quit();
                 return true;
             }
@@ -77,6 +77,8 @@ namespace AutoFill
             {
                 var svc = new service();
                 var daObj = svc.GetDebitAdviceByClienttransId( transID);
+                if (daObj == null || daObj.DebitAdviceID == 0)
+                    return false;
 
                 driver.Navigate().GoToUrl("https://eportal.incometax.gov.in/iec/foservices/#/login");
                 WaitForReady(driver);
