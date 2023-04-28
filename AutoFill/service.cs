@@ -17,9 +17,9 @@ namespace AutoFill
             client = new HttpClient();
             // client.BaseAddress = new Uri("http://leansyshost-001-site3.itempurl.com/api/"); //repro Live
 
-           // client.BaseAddress = new Uri("http://leansyshost-002-site1.itempurl.com/api/");  // prestige Live
+            client.BaseAddress = new Uri("https://prestigetdsapi.reproservices.in/api/");  // prestige Live
 
-            client.BaseAddress = new Uri("https://localhost:44301/api/");
+           // client.BaseAddress = new Uri("https://localhost:44301/api/");
 
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
