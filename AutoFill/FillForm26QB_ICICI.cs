@@ -84,10 +84,10 @@ namespace AutoFill
                 WaitForReady(driver);
 
                 LoginToIncomeTaxPortal(driver, autoFillDto.eportal);                
-                DownloadChallan(driver, daObj);
+               var isDownloaded= DownloadChallan(driver, daObj);
                 LogOut(driver);
                 driver.Quit();
-                return true;
+                return isDownloaded;
             }
             catch (Exception e)
             {
@@ -148,7 +148,7 @@ namespace AutoFill
             WaitForReady(webDriver);
         }
 
-        private static void DownloadChallan(IWebDriver webDriver, DebitAdviceDto dto) {
+        private static bool DownloadChallan(IWebDriver webDriver, DebitAdviceDto dto) {
 
             WaitForReady(webDriver);
             // Navigate to efile tab
@@ -160,8 +160,9 @@ namespace AutoFill
             WaitFor(webDriver, 2);
             //payment tab
             var tab = GetElementById(webDriver, "mat-tab-label-0-2");
-            tab.Click();                     
+            tab.Click();
 
+           ( (IJavaScriptExecutor)webDriver).ExecuteScript("document.getElementById('ymPluginDivContainerInitial').remove();");
             //button[.filterMobile]
             var filterBtn = GetElementByClass(webDriver, "filterMobile");
             filterBtn.Click();
@@ -187,7 +188,8 @@ namespace AutoFill
 
             var gridContain = webDriver.FindElement(By.ClassName("ag-center-cols-container"));
             var rows= gridContain.FindElements(By.ClassName("ag-row"));
-          
+
+            var isDownloaded = false;
             foreach (var row in rows) {
                 var cells = row.FindElements(By.ClassName("ag-cell"));
                 var cinNo = cells[0].Text;
@@ -195,11 +197,13 @@ namespace AutoFill
                 var actionBtn=cells[6].FindElement(By.ClassName("mat-icon-button"));
                     actionBtn.Click();
 
-                    var receiptElm = webDriver.FindElements(By.ClassName("mat-menu-item"))[0]; 
+                    var receiptElm = webDriver.FindElements(By.ClassName("mat-menu-item"))[0];                    
                     receiptElm.Click();
+                    isDownloaded = true;
+                    break;
                 }
             }
-           
+            return isDownloaded;
 
         }
 
@@ -390,17 +394,20 @@ namespace AutoFill
 
             }
 
-            var totalAmtPaidPreviously = GetElementById(webDriver, "mat-input-37");
+          //  var totalAmtPaidPreviously = GetElementById(webDriver, "mat-input-37");
+            var totalAmtPaidPreviously = GetElementByXpath(webDriver, "//input[@formcontrolname='prevInstallment']");
             if(totalAmtPaidPreviously.Enabled)
                 totalAmtPaidPreviously.SendKeys(Math.Round(eportal.TotalAmountPaid).ToString());
-               // totalAmtPaidPreviously.SendKeys(eportal.TotalAmountPaid.ToString());
+            // totalAmtPaidPreviously.SendKeys(eportal.TotalAmountPaid.ToString());
 
-            var amtPaidCurr = GetElementById(webDriver, "mat-input-38");
+            // var amtPaidCurr = GetElementById(webDriver, "mat-input-38");
+            var amtPaidCurr = GetElementByXpath(webDriver, "//input[@formcontrolname='amtPaidCurrently']");
             if (amtPaidCurr.Enabled)
                 amtPaidCurr.SendKeys(eportal.AmountPaid.ToString());
 
-            var stampVal = GetElementById(webDriver, "mat-input-39");
-            if(stampVal.Enabled)
+           // var stampVal = GetElementById(webDriver, "mat-input-39");
+            var stampVal = GetElementByXpath(webDriver, "//input[@formcontrolname='stampDutyValue']");
+            if (stampVal.Enabled)
             stampVal.SendKeys(eportal.StampDuty.ToString());
 
             var tdsAmt = GetElementById(webDriver, "mat-input-26");

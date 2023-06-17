@@ -136,7 +136,7 @@ namespace AutoFill
                 // autoUploadChallan(model.ClientPaymentTransactionID, challanAmount, selectedBank,model.SellerPAN);
                 UploadDebitAdvice(model.ClientPaymentTransactionID);
 
-                // Reload filter
+                // Reload filter    
                 this.Dispatcher.Invoke((Action)(() =>
                 { 
                     var custName = customerNameTxt.Text;
@@ -182,6 +182,9 @@ namespace AutoFill
             {
                 foreach (var item in remittanceList)
                 {
+                    if (item.IsDebitAdvice)
+                        continue;
+
                     Dispatcher.BeginInvoke(new Action(() => lbl_runingUnit.Content = item.CustomerName + "  -  " + item.UnitNo + "  -  " + item.TdsAmount), System.Windows.Threading.DispatcherPriority.Send);
 
                     var challanAmount = item.TdsAmount + item.TdsInterest + item.LateFee;
@@ -1012,7 +1015,7 @@ namespace AutoFill
                     // download chellan
                     var challanAmount = item.TdsAmount + item.TdsInterest + item.LateFee;
 
-                    var id = remittanceList[0].ClientPaymentTransactionID;
+                    var id = item.ClientPaymentTransactionID;
                     AutoFillDto autoFillDto = svc.GetAutoFillData(id);
                     var status = FillForm26QB_ICICI.DownloadChallanFromTaxPortal(autoFillDto, id);
 
