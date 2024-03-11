@@ -228,8 +228,9 @@ namespace AutoFill
         }
         private object GetAmount(string text)
         {
-            string ward = Regex.Match(text, "₹(.*)Amount").Groups[1].Value;
-            return ward;
+            string ward = Regex.Match(text, "₹(.*)Amount").Groups[1].Value.Trim();
+            var amt = ward.Split(' ')[0];
+            return amt;
         }
 
         private object GetWordAfterMatch(string text, string word)

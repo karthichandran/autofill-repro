@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace AutoFill
@@ -15,13 +16,14 @@ namespace AutoFill
         public service()
         {
             client = new HttpClient();
-           //  client.BaseAddress = new Uri("http://leansyshost-001-site3.itempurl.com/api/"); //repro Live
+              client.BaseAddress = new Uri("http://leansyshost-001-site3.itempurl.com/api/"); //repro Live
+           //client.BaseAddress = new Uri("https://prestigetdsapi.reproservices.in/api/");  // prestige Live
 
-
-            client.BaseAddress = new Uri("https://localhost:44301/api/");
+            //  client.BaseAddress = new Uri("https://localhost:44301/api/");
 
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            client.Timeout = TimeSpan.FromMinutes(10);
         }
 
         public IList<TdsRemittanceDto> GetTdsRemitance(string custName,string premises,string unit, string fromUnit, string toUnit,string lot)
@@ -133,6 +135,41 @@ namespace AutoFill
             return remitance;
         }
 
+        public IList<TdsRemittanceDto> GetTdsPaidListExport(string custName, string premises, string unit, string fromUnit, string toUnit, string lot, string remittanceStatusID)
+        {
+            IList<TdsRemittanceDto> remitance = null;
+            HttpResponseMessage response = new HttpResponseMessage();
+
+            var query = new Dictionary<string, string>();
+            if (!string.IsNullOrEmpty(custName))
+                query["customerName"] = custName;
+            if (!string.IsNullOrEmpty(premises))
+                query["PropertyPremises"] = premises;
+            if (!string.IsNullOrEmpty(unit))
+                query["unitNo"] = unit;
+            if (!string.IsNullOrEmpty(fromUnit))
+                query["fromUnitNo"] = fromUnit;
+            if (!string.IsNullOrEmpty(toUnit))
+                query["toUnitNo"] = toUnit;
+            if (!string.IsNullOrEmpty(lot))
+                query["lotNo"] = lot;
+            if (!string.IsNullOrEmpty(remittanceStatusID))
+                query["remittanceStatusID"] = remittanceStatusID;
+
+            response = client.GetAsync(QueryHelpers.AddQueryString("TdsRemittance/processedList/export", query)).Result;
+
+            if (response.IsSuccessStatusCode)
+            {
+                remitance = response.Content.ReadAsAsync<IList<TdsRemittanceDto>>().Result;
+            }
+            foreach (var entity in remitance)
+            {
+
+                entity.OnlyTDS = !entity.OnlyTDS;
+            }
+            return remitance;
+        }
+
         public AutoFillDto GetAutoFillData(int clientPaymentTransactionID)
         {
 
@@ -179,6 +216,18 @@ namespace AutoFill
         {
             HttpResponseMessage response = new HttpResponseMessage();
             response = client.PutAsync("ClientPayment/remittanceStatus/" + clientPaymentTransactionID+"/2",null).Result;
+
+            if (response.IsSuccessStatusCode)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public bool SetToPending(int clientPaymentTransactionID)
+        {
+            HttpResponseMessage response = new HttpResponseMessage();
+            response = client.PutAsync("TdsRemittance/remittanceStatus/" + clientPaymentTransactionID + "/1", null).Result;
 
             if (response.IsSuccessStatusCode)
             {
@@ -373,6 +422,34 @@ namespace AutoFill
             return false;
         }
 
+        public List<RemarkDto> GetRemarks()
+        {
+            List<RemarkDto> remarksList = null;
+            HttpResponseMessage response = new HttpResponseMessage();
+            response = client.GetAsync("remittanceremark/").Result;
+
+            if (response.IsSuccessStatusCode)
+            {
+                remarksList = response.Content.ReadAsAsync<List<RemarkDto>>().Result;
+            }
+            return remarksList;
+        }
+        public bool SaveRemittanceRemark(int clientPayTransId, int remarkId)
+        {
+            HttpResponseMessage response = new HttpResponseMessage();
+            HttpContent content= new StringContent("");
+            response = client.PutAsync("remittanceremark/remittance/" + clientPayTransId + "/" + remarkId, content).Result;
+            return response.Content.ReadAsAsync<bool>().Result;
+        }
+
+        public bool SaveTracesRemark(int clientPayTransId, int remarkId)
+        {
+            HttpResponseMessage response = new HttpResponseMessage();
+            HttpContent content = new StringContent("");
+            response = client.PutAsync("remittanceremark/traces/" + clientPayTransId + "/" + remarkId, content).Result;
+            return response.Content.ReadAsAsync<bool>().Result;
+        }
+
         public string GetContentType(string fileExtension)
         {
             var mimeTypes = new Dictionary<String, String>
@@ -553,10 +630,15 @@ namespace AutoFill
         public bool OnlyTDS { get; set; }
         public bool IsDebitAdvice { get; set; }
         public bool Show26qb { get; set; }
+
+        public int? RemarkId { get; set; }
+        public string RemarkDesc { get; set; }
+        public string CinNo { get; set; }
     }
     public class TracesModel : TdsRemittanceDto
     {
         public bool Form16BEnabled { get; set; }
+        public bool MailEnabled { get; set; }
     }
     public class AutoFillDto
     {
@@ -637,15 +719,15 @@ namespace AutoFill
 
         public PlaceValues AmountPaidParts { get; set; }
         public int AmountPaid { get; set; }
-        public Decimal BasicTax { get; set; }
-        public Decimal Interest { get; set; }
-        public Decimal LateFee { get; set; }
+        public decimal BasicTax { get; set; }
+        public decimal Interest { get; set; }
+        public decimal LateFee { get; set; }
         public int StampDuty { get; set; }
 
         public Guid OwnershipId { get; set; }
         public Guid InstallmentId { get; set; }
         public int PropertyID { get; set; }
-        public Decimal TotalAmountPaid { get; set; }
+        public decimal TotalAmountPaid { get; set; }
     }
 
     public class Tab4
@@ -681,9 +763,9 @@ namespace AutoFill
         public int StampDuty { get; set; }
         public DatePart RevisedDateOfPayment { get; set; }
         public decimal TotalAmountPaid { get; set; }
-        public Decimal Tds { get; set; }
-        public Decimal Interest { get; set; }
-        public Decimal Fee { get; set; }
+        public decimal Tds { get; set; }
+        public decimal Interest { get; set; }
+        public decimal Fee { get; set; }
         public int AmountPaid { get; set; }
     }
     public class DatePart
@@ -726,5 +808,12 @@ namespace AutoFill
         public string CinNo { get; set; }
         public DateTime? PaymentDate { get; set; }
         public int? BlobId { get; set; }
+    }
+
+    public class RemarkDto
+    {
+        public int RemarkId { get; set; }
+        public string Description { get; set; }
+        public bool  IsRemittance { get; set; }
     }
 }
