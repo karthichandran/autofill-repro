@@ -31,6 +31,8 @@ namespace AutoFill
             sl.SetCellValue(1, 12, "Is DA Completed");
             sl.SetCellValue(1, 13, "Transaction ID");
             sl.SetCellValue(1, 14, "Remark");
+            sl.SetCellValue(1, 15, "CIN No");
+            sl.SetCellValue(1, 16, "Transaction Log");
 
             var length = remList.Count;
             for (var i=0; i< length; i++)
@@ -50,13 +52,15 @@ namespace AutoFill
                 sl.SetCellValue(i+2, 12, obj.IsDebitAdvice);
                 sl.SetCellValue(i+2, 13, obj.ClientPaymentTransactionID);
                 sl.SetCellValue(i + 2, 14, obj.RemarkDesc);
+                sl.SetCellValue(i + 2, 15, obj.CinNo);
+                sl.SetCellValue(i + 2, 16, obj.TransactionLog);
             }
          
             sl.SaveAs(filePath);
 
         }
 
-        public void TracesExport(List<TdsRemittanceDto> remList)
+        public void TracesExport(List<TracesModel> remList)
         {
             var downloadPath = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders", "{374DE290-123F-4565-9164-39C4925E467B}", String.Empty).ToString();
 
@@ -77,6 +81,7 @@ namespace AutoFill
             sl.SetCellValue(1, 11, "status");
             sl.SetCellValue(1, 12, "Transaction ID");
             sl.SetCellValue(1, 13, "Remark");
+          
 
             var length = remList.Count;
             for (var i = 0; i < length; i++)

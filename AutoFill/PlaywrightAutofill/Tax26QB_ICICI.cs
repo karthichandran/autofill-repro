@@ -17,9 +17,11 @@ namespace AutoFill.PlaywrightAutofill
    {
        private IPage page;
        private BankAccountDetailsDto _bankLogin;
+       private string TransactionLog;
+       private service svc;
         public Tax26QB_ICICI()
         {
-
+            svc = new service();
             var path = GetChromePath();
             var proc1 = new ProcessStartInfo();
             string anyCommand = " --remote-debugging-port=9223 --user-data-dir=\"C:\\Users\\Demo\\chromepythondebug\"";
@@ -74,6 +76,7 @@ namespace AutoFill.PlaywrightAutofill
         {
             try
             {
+                TransactionLog = "";
                 _bankLogin = bankLogin;
                 await Setup();
                 await LoginToIncomeTaxPortal(autoFillDto.eportal);
@@ -82,12 +85,14 @@ namespace AutoFill.PlaywrightAutofill
               // var downloadStatus = await Download_DA(autoFillDto.tab1.PanOfPayer);
                // await LogOut();
                 await page.CloseAsync();
+                svc.SaveTransLog(int.Parse(transID), "Completed");
                 return crn;
             }
             catch (Exception e) {
               // await LogOut();
                await page.CloseAsync();
                 Console.WriteLine(e);
+                svc.SaveTransLog(int.Parse(transID), TransactionLog);
                 MessageBox.Show("Processing Form26QB Failed");
                 return "";
             }
@@ -97,6 +102,7 @@ namespace AutoFill.PlaywrightAutofill
         {
             try
             {
+                TransactionLog = "";
                 _bankLogin = bankLogin;
                 await Setup();
                 await LoginToIncomeTaxPortal(autoFillDto.eportal);
@@ -105,12 +111,14 @@ namespace AutoFill.PlaywrightAutofill
                 //var downloadStatus = await Download_DA(autoFillDto.tab1.PanOfPayer);
                 //await LogOut();
                 await page.CloseAsync();
+                svc.SaveTransLog(int.Parse(transID), "Completed");
                 return crn;
             }
             catch (Exception e)
             {
                 await page.CloseAsync();
                 Console.WriteLine(e);
+                svc.SaveTransLog(int.Parse(transID), TransactionLog);
                 return "";
             }
         }
@@ -148,6 +156,7 @@ namespace AutoFill.PlaywrightAutofill
                 WaitUntil = WaitUntilState.DOMContentLoaded
             });
 
+            TransactionLog = "Login failed";
             var userElm=await  page.WaitForSelectorAsync("#panAdhaarUserId");
            await userElm.FillAsync(eportal.LogInPan);
 
@@ -182,7 +191,8 @@ namespace AutoFill.PlaywrightAutofill
            {
                await loginHereBtn.ClickAsync();
            }
-           await page.WaitForURLAsync("**/dashboard",new PageWaitForURLOptions(){Timeout = 90000});
+           TransactionLog = "Exit after Login";
+            await page.WaitForURLAsync("**/dashboard",new PageWaitForURLOptions(){Timeout = 90000});
         }
 
         private async Task LogOut()
@@ -290,8 +300,11 @@ namespace AutoFill.PlaywrightAutofill
             var securityRiskBtn = await page.WaitForSelectorAsync("xpath=//*[@id='securityReasonPopup']/div/div/div[3]/button[2]", new PageWaitForSelectorOptions() { Timeout = 60000 });
             await securityRiskBtn.ClickAsync();
 
+            TransactionLog = "Failed at residential selection";
             var residentStatus = page.Locator("xpath=//*[@id='mat-radio-2']/label");
             await residentStatus.ClickAsync();
+
+            TransactionLog = "Failed at One / more buyer selection";
             if (!eportal.IsCoOwners)
             {
                 var oneBuyer = page.Locator("xpath=//*[@id='mat-radio-6']/label");
@@ -304,54 +317,63 @@ namespace AutoFill.PlaywrightAutofill
             }
 
             //todo : scroll bottom
-
+            TransactionLog = "Failed after filling buyers details";
             var continueBtn = page.Locator(".nextIcon").First;
             await continueBtn.ClickAsync();
+
+            TransactionLog = "Failed at PAN of seller";
             var panSeller = page.Locator("xpath=//input[@formcontrolname='pan']").Nth(1);
            // var panSeller = page.Locator("#mat-input-8");
             await panSeller.FillAsync(eportal.SellerPan);
             await page.WaitForTimeoutAsync(1000);
 
             //var panSellerConfirm = page.Locator("#mat-input-31");
+            TransactionLog = "Failed at confirm PAN of seller";
             var panSellerConfirm = page.Locator("xpath=//input[@formcontrolname='confirmPan']");
             await panSellerConfirm.FillAsync(eportal.SellerPan);
             await page.WaitForTimeoutAsync(1000);
 
+            TransactionLog = "Failed at flat address of seller tab";
             //var flat = page.Locator("#mat-input-10");
             var flat = page.Locator("xpath=//input[@formcontrolname='flatAddress']").Nth(1);
             await flat.FillAsync(eportal.SellerFlat);
             await page.WaitForTimeoutAsync(500);
 
+            TransactionLog = "Failed at road address  of seller tab";
             //var road = page.Locator("#mat-input-11");
             var road = page.Locator("xpath=//input[@formcontrolname='streetAddress']").Nth(1);
             await road.FillAsync(eportal.SellerRoad);
             await page.WaitForTimeoutAsync(500);
 
+            TransactionLog = "Failed at pin code  of seller tab";
             // var pinCode =await page.WaitForSelectorAsync("#mat-input-33");
             var inx = isResident ? 1 : 0;
             var pinCode =await page.WaitForSelectorAsync("xpath=//input[@formcontrolname='pincode']>> nth="+inx);
             await pinCode.FillAsync(eportal.SellerPinCode.Trim());
             await page.WaitForTimeoutAsync(1000);
 
+            TransactionLog = "Failed at mobile number";
             var mobileNo = page.Locator("#phone").Nth(1);
             await mobileNo.FillAsync(eportal.SellerMobile);
             await page.WaitForTimeoutAsync(1000);
 
+            TransactionLog = "Failed at email";
             //var email = page.Locator("#mat-input-13");
             var email = page.Locator("xpath=//input[@formcontrolname='emailId']").Nth(1);
             await email.FillAsync(eportal.SellerEmail);
 
-
+            TransactionLog = "Failed at one / more seller option";
             //var oneSeller = page.Locator("xpath=//*[@id='mat-radio-11']/label");
             var oneSeller = page.Locator("xpath=//mat-radio-group[@formcontrolname='isMultiple']").Nth(1).Locator("label").Nth(1);
             await oneSeller.ClickAsync();
 
             //todo : scroll bottom
-
+            TransactionLog = "Failed after filling seller details";
             continueBtn = page.Locator(".large-button-primary").Nth(2);
             await continueBtn.ClickAsync();
             await page.WaitForTimeoutAsync(1000);
 
+            TransactionLog = "Failed at property type selection";
             if (eportal.IsLand)
             {
                 //var typeLand = page.Locator("xpath=//*[@id='mat-radio-17']/label");
@@ -365,35 +387,40 @@ namespace AutoFill.PlaywrightAutofill
                 await typeBuild.ClickAsync();
             }
 
+            TransactionLog = "Failed at property flat";
             //var propFlat = page.Locator("#mat-input-16");
             var propFlat = page.Locator("xpath=//input[@formcontrolname='flatAddress']").Nth(2);
             await propFlat.FillAsync(eportal.PropFlat);
 
+            TransactionLog = "Failed at property road";
             //var propRoad = page.Locator("#mat-input-17");
             var propRoad = page.Locator("xpath=//input[@formcontrolname='streetAddress']").Nth(2);
             await propRoad.FillAsync(eportal.PropRoad);
 
+            TransactionLog = "Failed at property pin";
             //var propPin = page.Locator("#mat-input-18");
             inx = isResident ? 2 : 1;
             var propPin = await page.WaitForSelectorAsync("xpath=//input[@formcontrolname='pincode']>> nth="+inx);
             await propPin.FillAsync(eportal.PropPinCode);
 
+            TransactionLog = "Failed at date of agreement";
             var dateOfAgreement = page.Locator(".mat-datepicker-toggle-default-icon").First;
             await dateOfAgreement.ClickAsync();
 
             await pickdate(eportal.DateOfAgreement);
 
-           
+            TransactionLog = "Failed at property value";
             // var totalVal = page.Locator("#mat-input-22");
             var totalVal = page.Locator("xpath=//input[@formcontrolname='propertyValue']").Nth(0);
             await totalVal.FillAsync(eportal.TotalAmount.ToString());
 
+            TransactionLog = "Failed at date of payment";
             var dateOfPay = page.Locator(".mat-datepicker-toggle-default-icon").Nth(1);
             await dateOfPay.ClickAsync();
 
             await pickdate(eportal.RevisedDateOfPayment);
 
-         
+            TransactionLog = "Failed at  payment type";
             if (eportal.paymentType == 1) // 1 is lumpsum
             {
                 //var payTypeLump = page.Locator("xpath=//*[@id='mat-radio-21']/label");
@@ -418,6 +445,7 @@ namespace AutoFill.PlaywrightAutofill
 
             }
 
+            TransactionLog = "Failed at previous installment";
             var totalAmtPaidPreviously = page.Locator("xpath=//input[@formcontrolname='prevInstallment']");
             if(await totalAmtPaidPreviously.IsEnabledAsync())
             await totalAmtPaidPreviously.FillAsync(Math.Round(eportal.TotalAmountPaid).ToString());
@@ -435,6 +463,7 @@ namespace AutoFill.PlaywrightAutofill
             //if (await tdsAmt.IsEnabledAsync())
             //    await tdsAmt.FillAsync(eportal.Tds.ToString());
 
+            TransactionLog = "Failed at TDS amount";
             var tdsAmt = page.Locator("xpath=//input[@formcontrolname='tdsAmnt']");
             if (await tdsAmt.IsEnabledAsync())
                 await tdsAmt.FillAsync(Convert.ToInt32(eportal.Tds).ToString());
@@ -452,6 +481,7 @@ namespace AutoFill.PlaywrightAutofill
             continueBtn = page.Locator(".large-button-primary").Nth(4);
             await continueBtn.ClickAsync();
 
+            TransactionLog = "Failed at Bank name selection";
             var iciciNet = page.Locator("xpath=//img[@src='https://static.incometax.gov.in/iec/foservices/assets/iciciBank.png']");
             await iciciNet.ClickAsync();
 
@@ -467,6 +497,7 @@ namespace AutoFill.PlaywrightAutofill
            var submitToBank = page.Locator("xpath=//*[@id='SubmitToBank']/div/div/div[3]/button");
             await submitToBank.ClickAsync();
 
+            TransactionLog = "Failed at Corporate User";
             var crnRow = page.Locator("table >tbody > tr > td > table > tbody > tr ");
              var crn = await crnRow.Nth(3).Locator("td").Nth(1).InnerTextAsync();
             var corporateUser = page.Locator("#CIB_11X_PROCEED");
@@ -476,6 +507,7 @@ namespace AutoFill.PlaywrightAutofill
 
         private async Task ProcessToBank(  string transId,string pan)
         {
+            TransactionLog = "Failed at bank login";
             var userIdTxt = page.Locator("#login-step1-userid");
             await userIdTxt.FillAsync(_bankLogin.UserName);
 
@@ -492,6 +524,7 @@ namespace AutoFill.PlaywrightAutofill
                 await feeTxt.FillAsync(transId);
             }
 
+            TransactionLog = "Failed at Grid";
             var gridAuth = page.Locator(".absmiddle").Nth(1);
             await gridAuth.ClickAsync();
 

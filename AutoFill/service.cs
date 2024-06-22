@@ -17,9 +17,8 @@ namespace AutoFill
         {
             client = new HttpClient();
               client.BaseAddress = new Uri("http://leansyshost-001-site3.itempurl.com/api/"); //repro Live
-           //client.BaseAddress = new Uri("https://prestigetdsapi.reproservices.in/api/");  // prestige Live
-
-            //  client.BaseAddress = new Uri("https://localhost:44301/api/");
+          
+            // client.BaseAddress = new Uri("https://localhost:44360/api/");
 
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -101,9 +100,9 @@ namespace AutoFill
             return remitance;
         }
 
-        public IList<TdsRemittanceDto> GetTdsPaidList(string custName, string premises, string unit, string fromUnit, string toUnit, string lot, string remittanceStatusID)
+        public IList<TracesModel> GetTdsPaidList(string custName, string premises, string unit, string fromUnit, string toUnit, string lot, string remittanceStatusID)
         {
-            IList<TdsRemittanceDto> remitance = null;
+            IList<TracesModel> remitance = null;
             HttpResponseMessage response = new HttpResponseMessage();
 
             var query = new Dictionary<string, string>();
@@ -126,7 +125,7 @@ namespace AutoFill
 
             if (response.IsSuccessStatusCode)
             {
-                remitance = response.Content.ReadAsAsync<IList<TdsRemittanceDto>>().Result;
+                remitance = response.Content.ReadAsAsync<IList<TracesModel>>().Result;
             }
             foreach(var entity in remitance){
 
@@ -135,9 +134,9 @@ namespace AutoFill
             return remitance;
         }
 
-        public IList<TdsRemittanceDto> GetTdsPaidListExport(string custName, string premises, string unit, string fromUnit, string toUnit, string lot, string remittanceStatusID)
+        public IList<TracesModel> GetTdsPaidListExport(string custName, string premises, string unit, string fromUnit, string toUnit, string lot, string remittanceStatusID)
         {
-            IList<TdsRemittanceDto> remitance = null;
+            IList<TracesModel> remitance = null;
             HttpResponseMessage response = new HttpResponseMessage();
 
             var query = new Dictionary<string, string>();
@@ -160,11 +159,10 @@ namespace AutoFill
 
             if (response.IsSuccessStatusCode)
             {
-                remitance = response.Content.ReadAsAsync<IList<TdsRemittanceDto>>().Result;
+                remitance = response.Content.ReadAsAsync<IList<TracesModel>>().Result;
             }
             foreach (var entity in remitance)
             {
-
                 entity.OnlyTDS = !entity.OnlyTDS;
             }
             return remitance;
@@ -450,6 +448,29 @@ namespace AutoFill
             return response.Content.ReadAsAsync<bool>().Result;
         }
 
+        public bool SaveTransLog(int transId, string msg)
+        {
+            var modal = new TransactionLogDto
+            {
+                ClientPaymentTransactionId = transId,
+                Comment = msg
+            };
+            HttpResponseMessage response = new HttpResponseMessage();
+            response = client.PostAsJsonAsync("TransactionLog/", new AddCommand { Log = modal }).Result;
+            return response.Content.ReadAsAsync<bool>().Result;
+        }
+
+        public class AddCommand
+        {
+            public TransactionLogDto Log { get; set; }
+        }
+        public class TransactionLogDto
+        {
+            public int LogId { get; set; }
+            public int ClientPaymentTransactionId { get; set; }
+            public string Comment { get; set; }
+        }
+
         public string GetContentType(string fileExtension)
         {
             var mimeTypes = new Dictionary<String, String>
@@ -634,6 +655,7 @@ namespace AutoFill
         public int? RemarkId { get; set; }
         public string RemarkDesc { get; set; }
         public string CinNo { get; set; }
+        public string TransactionLog { get; set; }
     }
     public class TracesModel : TdsRemittanceDto
     {

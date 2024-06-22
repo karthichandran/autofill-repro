@@ -136,13 +136,12 @@
                     </TextBox>
                     <!--<ComboBox Name="remitanceStatusddl" Grid.Row="2" Grid.Column="0" Height="35" Margin="10,0,10,10" />-->
                   
-                        <Grid  Grid.Row="2" Grid.Column="1"  Grid.ColumnSpan="2" >
+                        <Grid  Grid.Row="2" Grid.Column="1"  Grid.ColumnSpan="2">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition  />
                                 <ColumnDefinition />
                                 <ColumnDefinition />
                                 <ColumnDefinition />
-                            <ColumnDefinition />
                         </Grid.ColumnDefinitions>
                             <Button x:Name="Search" Grid.Column="0"  Content="Search" Margin="0,0,10,0" Click="Search_Click" FontSize="17" FontWeight="Bold" Background="#039be5" Height="40" HorizontalAlignment="Stretch" VerticalAlignment="Center" BorderBrush="#FFC5C2C2" >
                         <Button.Foreground>
@@ -457,18 +456,23 @@
                     <Grid Grid.Row="6" VerticalAlignment="Top" Grid.ColumnSpan="4">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition />
-                            <ColumnDefinition Width="130"/>
-                            <ColumnDefinition Width="150"/>
-                            <ColumnDefinition Width="50"/>
-                            <ColumnDefinition Width="110"/>
-                            <ColumnDefinition Width="150"/>
-                            <ColumnDefinition/>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
                         </Grid.ColumnDefinitions>
-                        <Label Grid.Column="1" Content="Total Records  :" FontSize="17" FontWeight="Bold" Foreground="#FF9800"></Label>
-                        <Label x:Name="TotalRecordsLbl" Grid.Column="2" FontSize="17" FontWeight="Bold" Foreground="#E65100" Margin="20 0 0 0"></Label>
-                        <Label Grid.Column="3"></Label>
-                        <Label Grid.Column="4" Content=" Total TDS  :" FontSize="17" FontWeight="Bold" Foreground="#FF9800" ></Label>
-                        <Label x:Name="TotalTDSLbl" Grid.Column="5" FontSize="17" FontWeight="Bold" Foreground="#E65100" Margin="20 0 0 0"></Label>
+                        <StackPanel Orientation="Horizontal" Grid.Column="0">
+                            <Label Content="Total Records  :" FontSize="17" FontWeight="Bold" Foreground="#FF9800"></Label>
+                            <Label x:Name="TotalRecordsLbl"  FontSize="17" FontWeight="Bold" Foreground="#E65100" Margin="20 0 0 0"></Label>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Grid.ColumnSpan="4" Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Label  Content=" Total TDS  :" FontSize="17" FontWeight="Bold" Foreground="#FF9800" ></Label>
+                            <Label x:Name="TotalTDSLbl" FontSize="17" FontWeight="Bold" Foreground="#E65100" Margin="20 0 0 0" MinWidth="100"></Label>
+                            <Label  Content=" TDS Interest  :" FontSize="17" FontWeight="Bold" Foreground="#FF9800" ></Label>
+                            <Label x:Name="TotalTdsInterestLbl" FontSize="17" FontWeight="Bold" Foreground="#E65100" Margin="20 0 0 0" MinWidth="100"></Label>
+                            <Label  Content="Late Fee  :" FontSize="17" FontWeight="Bold" Foreground="#FF9800" ></Label>
+                            <Label x:Name="TotalLateFeeLbl" FontSize="17" FontWeight="Bold" Foreground="#E65100" Margin="20 0 0 0"></Label>
+                        </StackPanel>
                     </Grid>
                     <!--<Popup Name="popup1" PlacementTarget="{Binding ElementName=FilterGrid}" AllowsTransparency = "True" PopupAnimation = "Slide"
     Placement="Center" Height="100" Width="300">
@@ -728,9 +732,6 @@
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
-                           
-                                                  
-                            
                            
                             <DataGridTextColumn Header="Challan Amount" Binding="{Binding ChallanAmount}">
                                 <DataGridColumn.HeaderStyle>

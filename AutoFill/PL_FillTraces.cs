@@ -38,7 +38,12 @@ namespace AutoFill
         {
             try
             {
-                await FillLogin( tdsRemittanceDto);
+                var loginStatus = await FillLogin( tdsRemittanceDto);
+                if (!loginStatus)
+                {
+                    await page.CloseAsync();
+                    return "";
+                }
                 var reqNo =await RquestForm16B( tdsRemittanceDto);
                await page.CloseAsync();
                 return reqNo;
@@ -55,8 +60,13 @@ namespace AutoFill
         {
             try
             {
-             
-                await FillLogin( tdsRemittanceDto);
+
+                var loginStatus = await FillLogin( tdsRemittanceDto);
+                if (!loginStatus)
+                {
+                    await page.CloseAsync();
+                    return "";
+                }
                 var fileName =await DownloadForm( requestNo, tdsRemittanceDto.CustomerPAN);
                 if (fileName != "")
                 {
@@ -78,7 +88,7 @@ namespace AutoFill
             return null;
         }
 
-        private async Task FillLogin( TdsRemittanceDto tdsRemittanceDto)
+        private async Task<bool> FillLogin( TdsRemittanceDto tdsRemittanceDto)
         {
             await Setup();
             await page.GotoAsync("https://www.tdscpc.gov.in/app/login.xhtml", new PageGotoOptions
@@ -86,41 +96,45 @@ namespace AutoFill
                 WaitUntil = WaitUntilState.DOMContentLoaded
             });
 
-            var logintype = page.Locator("#tpay");
-           await logintype.ClickAsync();
-
-           await page.WaitForTimeoutAsync(1000);
-         
-
-            var userId = page.Locator("#userId");
-            //userId.SendKeys("ADMPC7474M");
-            await userId.FillAsync(tdsRemittanceDto.CustomerPAN);
-           
-            var pwd = page.Locator("#psw");
-            // pwd.SendKeys("Rana&123");
-            pwd.FillAsync(tdsRemittanceDto.TracesPassword);
-
-           //var pan = page.Locator("#tanpan");
-           //// pwd.SendKeys("Rana&123");
-           //await pan.FillAsync(tdsRemittanceDto.CustomerPAN);
-
-            var captcha = await ReadCaptcha("captchaImg");
-            if (captcha == "")
+            for (var i = 0; i < 3; i++)
             {
-                MessageBoxResult result = MessageBox.Show("Please fill the captcha and press OK button.", "Confirmation",
-                    MessageBoxButton.OK, MessageBoxImage.Asterisk,
-                    MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
-            }
-            else
-            {
-                var captchaInput = page.Locator("#captcha");
-                await captchaInput.FillAsync(captcha);
-            }
+                var logintype = page.Locator("#tpay");
+                await logintype.ClickAsync();
 
-            var loginElm= page.Locator("#clickLogin");
-           await loginElm.ClickAsync();
+                await page.WaitForTimeoutAsync(1000);
 
-           await page.WaitForTimeoutAsync(2000);
+
+                var userId = page.Locator("#userId");
+                //await userId.FillAsync("ADMPC7474M");
+                await userId.FillAsync(tdsRemittanceDto.CustomerPAN);
+
+                var pwd = page.Locator("#psw");
+                //await pwd.FillAsync("Rana&123");
+                await pwd.FillAsync(tdsRemittanceDto.TracesPassword);
+
+                var captcha = await ReadCaptcha("captchaImg");
+                if (captcha == "")
+                {
+                    MessageBoxResult result = MessageBox.Show("Please fill the captcha and press OK button.",
+                        "Confirmation",
+                        MessageBoxButton.OK, MessageBoxImage.Asterisk,
+                        MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
+                }
+                else
+                {
+                    var captchaInput = page.Locator("#captcha");
+                    await captchaInput.FillAsync(captcha);
+                }
+
+                var loginElm = page.Locator("#clickLogin");
+                await loginElm.ClickAsync();
+                await page.WaitForTimeoutAsync(2000);
+                var error = await page.Locator("#err_Summary").InnerTextAsync();
+                if (string.IsNullOrEmpty(error))
+                    break;
+                if (!error.Contains("Text entered does not match with image data"))
+                    return false;
+            }
 
             var confirmationChk = page.Locator("#Details");
            await confirmationChk.ClickAsync();
@@ -129,6 +143,7 @@ namespace AutoFill
             var confirmationBtn = page.Locator("#btn");
            await confirmationBtn.ClickAsync();
            await page.WaitForTimeoutAsync(2000);
+           return true;
         }
 
         private async Task<string> RquestForm16B(TdsRemittanceDto tdsRemittanceDto)

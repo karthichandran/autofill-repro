@@ -49,7 +49,7 @@ namespace AutoFill
         private string toUnit;
         private string lot;
 
-        ObservableCollection<TdsRemittanceDto> tdsRemitanceList { get; set; }
+        ObservableCollection<TracesModel> tdsRemitanceList { get; set; }
 
         BackgroundWorker worker;
         private List<TdsRemittanceDto> remList;
@@ -104,9 +104,9 @@ namespace AutoFill
             remitanceGrid.ItemsSource = remitanceList;
 
             TotalRecordsLbl.Content = remitanceList.Count;
-            var totalTds = remitanceList.Sum(x => x.TdsAmount);
-            TotalTDSLbl.Content = totalTds;
-
+            TotalTDSLbl.Content = remitanceList.Sum(x => x.TdsAmount);
+            TotalTdsInterestLbl.Content = remitanceList.Sum(x => x.TdsInterest);
+            TotalLateFeeLbl.Content = remitanceList.Sum(x => x.LateFee);
         }
 
         private void LoadRemittanceStatus()
@@ -187,9 +187,9 @@ namespace AutoFill
                       remitanceList = remitanceList.OrderBy(x => x.UnitNo).ToList();
                       remitanceGrid.ItemsSource = remitanceList;
                       TotalRecordsLbl.Content = remitanceList.Count;
-                      var totalTds = remitanceList.Sum(x => x.TdsAmount);
-                      TotalTDSLbl.Content = totalTds;
-
+                      TotalTDSLbl.Content = remitanceList.Sum(x => x.TdsAmount);
+                      TotalTdsInterestLbl.Content = remitanceList.Sum(x => x.TdsInterest);
+                      TotalLateFeeLbl.Content = remitanceList.Sum(x => x.LateFee);
                   }));
 
 
@@ -598,6 +598,8 @@ namespace AutoFill
             remitanceGrid.ItemsSource = null;
             TotalRecordsLbl.Content = 0;
             TotalTDSLbl.Content = 0;
+            TotalTdsInterestLbl.Content = 0;
+            TotalLateFeeLbl.Content = 0;
             remList = null;
         }
         private void RemittanceSearchFilter()
@@ -646,8 +648,9 @@ namespace AutoFill
             foreach (var x in remittanceList) { x.Show26qb = !x.IsDebitAdvice; };
             remitanceGrid.ItemsSource = remittanceList;
             TotalRecordsLbl.Content = remittanceList.Count;
-            var totalTds = remittanceList.Sum(x => x.TdsAmount);
-            TotalTDSLbl.Content = totalTds;
+            TotalTDSLbl.Content = remittanceList.Sum(x => x.TdsAmount);
+            TotalTdsInterestLbl.Content = remittanceList.Sum(x => x.TdsInterest);
+            TotalLateFeeLbl.Content = remittanceList.Sum(x => x.LateFee);
             progressbar1.Visibility = Visibility.Hidden;
 
         }
@@ -673,8 +676,18 @@ namespace AutoFill
             });
 
             remittanceList = remittanceList.OrderBy(x => x.UnitNo).ToList();
-            tdsRemitanceList = new ObservableCollection<TdsRemittanceDto>(remittanceList);
-
+            tdsRemitanceList = new ObservableCollection<TracesModel>(remittanceList);
+             foreach (var tracesModel in tdsRemitanceList)
+           {
+               if (string.IsNullOrEmpty(tracesModel.TracesPassword))
+               {
+                   tracesModel.OnlyTDS = false;
+                 //  tracesModel.Form16BEnabled = false;
+                   tracesModel.MailEnabled = false;
+               }
+               else
+                   tracesModel.MailEnabled = true;
+            }
             //TracesGrid.ItemsSource = remittanceList;
             TracesGrid.ItemsSource = tdsRemitanceList;
             TotalTracesRecordsLbl.Content = tdsRemitanceList.Count;
@@ -687,7 +700,7 @@ namespace AutoFill
 
             var remittanceList = svc.GetTdsPaidList(custName, premise, unit, fromUnit, toUnit, lot, remittanceStatusID);
             remittanceList = remittanceList.OrderBy(x => x.UnitNo).ToList();
-            tdsRemitanceList = new ObservableCollection<TdsRemittanceDto>(remittanceList);
+            tdsRemitanceList = new ObservableCollection<TracesModel>(remittanceList);
             // Reload filter
             this.Dispatcher.Invoke((Action)(() =>
             {
@@ -1071,6 +1084,8 @@ namespace AutoFill
         private async void challan_download_Click(object sender, RoutedEventArgs e)
         {
             var remittanceList = (List<TdsRemittanceDto>)remitanceGrid.ItemsSource;
+            if(remittanceList==null)
+                return;
             remittanceList = remittanceList.Where(x => x.IsSelected == true).ToList();
 
             if (remittanceList.Count == 0)
@@ -1112,8 +1127,9 @@ namespace AutoFill
                 remitanceList = remitanceList.OrderBy(x => x.UnitNo).Distinct().ToList();
                 remitanceGrid.ItemsSource = remitanceList;
                 TotalRecordsLbl.Content = remitanceList.Count;
-                var totalTds = remitanceList.Sum(x => x.TdsAmount);
-                TotalTDSLbl.Content = totalTds;
+                TotalTDSLbl.Content = remitanceList.Sum(x => x.TdsAmount);
+                TotalTdsInterestLbl.Content = remittanceList.Sum(x => x.TdsInterest);
+                TotalLateFeeLbl.Content = remittanceList.Sum(x => x.LateFee);
 
             }));
 
@@ -1137,12 +1153,17 @@ namespace AutoFill
             try
             {
                 progressbar1.Visibility = Visibility.Visible;
+                var custName = customerNameTxt.Text;
+                var premise = PremisesTxt.Text;
+                var unit = unitNoTxt.Text;
                 var lot = lotNoTxt.Text;
+                var fromUnit = fromUnitNoTxt.Text;
+                var toUnit = toUnitNoTxt.Text;
                 if (string.IsNullOrEmpty(lot))
                     return;
                 var remittanceList = await Task.Run(() =>
                 {
-                    return svc.GetTdsRemitance("","","","","", lot);
+                    return svc.GetTdsRemitance(custName, premise, unit, fromUnit, toUnit, lot);
                 });
                 if (remittanceList.Count() == 0)
                 {
@@ -1221,12 +1242,18 @@ namespace AutoFill
             try
             {
                 progressbar1.Visibility = Visibility.Visible;
+                var remiitanceStatusID = (tracesRemitanceStatusddl.SelectedValue == null || Convert.ToInt32(tracesRemitanceStatusddl.SelectedValue) == -1) ? null : tracesRemitanceStatusddl.SelectedValue.ToString();
+                var custName = tracesCustomerNameTxt.Text;
+                var premise = tracesPremisesTxt.Text;
+                var unit = tracesUnitNoTxt.Text;
                 var lot = tracesLotNoTxt.Text;
+                var fromUnit = tracesFromUnitNoTxt.Text;
+                var toUnit = tracesToUnitNoTxt.Text;
                 if (string.IsNullOrEmpty(lot))
                     return;
                 var remittanceList = await Task.Run(() =>
                 {
-                    return svc.GetTdsPaidListExport("", "", "", "", "", lot,"");
+                    return svc.GetTdsPaidListExport(custName, premise, unit, fromUnit, toUnit, lot, remittanceStatusID);
                 });
                 if (remittanceList.Count() == 0)
                 {
@@ -1235,12 +1262,12 @@ namespace AutoFill
                     return;
                 }
                 remittanceList = remittanceList.OrderBy(x => x.UnitNo).ToList();
-                remList = remittanceList.ToList();
+               // remList = remittanceList.ToList();
 
                 progressbar1.Visibility = Visibility.Hidden;
 
                 ExportToExcel ex = new ExportToExcel();
-                ex.TracesExport(remList);
+                ex.TracesExport(remittanceList.ToList());
                 MessageBox.Show("Exported successfully");
             }
             catch (Exception ex)
