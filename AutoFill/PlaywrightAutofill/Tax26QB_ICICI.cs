@@ -190,8 +190,15 @@ namespace AutoFill.PlaywrightAutofill
            if (await loginHereBtn.CountAsync()>0)
            {
                await loginHereBtn.ClickAsync();
-           }
-           TransactionLog = "Exit after Login";
+               await page.WaitForTimeoutAsync(2000);
+            }
+
+           var itrBackBtn = await page.WaitForSelectorAsync(".previousIcon", new PageWaitForSelectorOptions() { Timeout = 60000 });
+           //var itrBackBtn = page.Locator(".previousIcon");
+           if (itrBackBtn != null && await itrBackBtn.IsEnabledAsync())
+               await itrBackBtn.ClickAsync();
+
+            TransactionLog = "Exit after Login";
             await page.WaitForURLAsync("**/dashboard",new PageWaitForURLOptions(){Timeout = 90000});
         }
 
@@ -243,7 +250,7 @@ namespace AutoFill.PlaywrightAutofill
             //
             //.mat-select-panel> mat-option>span
 
-            var noOfRowElm = page.Locator("#mat-select-6");
+            var noOfRowElm = page.Locator("#mat-select-7");
             await noOfRowElm.ClickAsync();
             var optList = page.Locator(".mat-select-panel> mat-option>span");
             if (await optList.CountAsync()>0)
@@ -301,18 +308,18 @@ namespace AutoFill.PlaywrightAutofill
             await securityRiskBtn.ClickAsync();
 
             TransactionLog = "Failed at residential selection";
-            var residentStatus = page.Locator("xpath=//*[@id='mat-radio-2']/label");
+            var residentStatus = page.Locator("xpath=//*[@id='mat-radio-5']/label");
             await residentStatus.ClickAsync();
 
             TransactionLog = "Failed at One / more buyer selection";
             if (!eportal.IsCoOwners)
             {
-                var oneBuyer = page.Locator("xpath=//*[@id='mat-radio-6']/label");
+                var oneBuyer = page.Locator("xpath=//*[@id='mat-radio-9']/label");
                await oneBuyer.ClickAsync();
             }
             else
             {
-                var moreBuyer = page.Locator("xpath=//*[@id='mat-radio-5']/label");
+                var moreBuyer = page.Locator("xpath=//*[@id='mat-radio-8']/label");
                await moreBuyer.ClickAsync();
             }
 
